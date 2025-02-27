@@ -2,4 +2,4 @@ import { User } from '@/modules/users';
 import { Entity } from 'typeorm';
 
 @Entity()
-export class AdminAuth extends User {}
+export class Auth extends User {}

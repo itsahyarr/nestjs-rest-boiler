@@ -1,7 +1,7 @@
 import { User } from '@/modules/users';
 import { IsObject, IsString } from 'class-validator';
 
-export class AdminLoginResponse {
+export class AuthLoginResponse {
   @IsString()
   access_token: string;
 

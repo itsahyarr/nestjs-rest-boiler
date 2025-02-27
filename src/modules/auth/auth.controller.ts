@@ -11,24 +11,22 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { AdminAuthService } from './admin-auth.service';
-import { LoginAdminDto } from './dto/login-admin.dto';
+import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
-@Controller('admin-auth')
-export class AdminAuthController {
-  constructor(private readonly adminAuthService: AdminAuthService) {}
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async loginAdmin(
-    @Body() loginAdminDto: LoginAdminDto,
-  ): Promise<IApiResponse> {
+  async login(@Body() loginDto: LoginDto): Promise<IApiResponse> {
     return {
       code: HttpStatus.OK,
       status: true,
       message: 'login success!',
-      result: await this.adminAuthService.login(loginAdminDto),
+      result: await this.authService.login(loginDto),
     };
   }
 
@@ -36,12 +34,12 @@ export class AdminAuthController {
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refreshAdminSession(@Req() req: any): Promise<IApiResponse> {
+  async refreshAuthSession(@Req() req: any): Promise<IApiResponse> {
     return {
       code: HttpStatus.OK,
       message: 'session updated successfully!',
       status: true,
-      result: await this.adminAuthService.refreshSession(
+      result: await this.authService.refreshSession(
         +req.user.sub,
         req.user.username,
         req.user.refreshToken,

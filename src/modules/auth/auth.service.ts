@@ -10,11 +10,11 @@ import * as argon2 from 'argon2';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { UsersService } from '../users/users.service';
-import { AdminLoginResponse } from './dto/admin-login-response';
-import { LoginAdminDto } from './dto/login-admin.dto';
+import { AuthLoginResponse } from './dto/auth-login-response';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
-export class AdminAuthService {
+export class AuthService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly usersService: UsersService,
@@ -34,7 +34,7 @@ export class AdminAuthService {
           role,
         },
         {
-          secret: process.env.JWT_ADMIN_ACCESS_SECRET,
+          secret: process.env.JWT_ACCESS_SECRET,
           expiresIn: '3d',
         },
       ),
@@ -45,7 +45,7 @@ export class AdminAuthService {
           role,
         },
         {
-          secret: process.env.JWT_ADMIN_REFRESH_SECRET,
+          secret: process.env.JWT_REFRESH_SECRET,
           expiresIn: '7d',
         },
       ),
@@ -65,7 +65,7 @@ export class AdminAuthService {
 
   private async hashData(data: string): Promise<string> {
     return await argon2.hash(data, {
-      secret: Buffer.from(process.env.JWT_ADMIN_REFRESH_SECRET),
+      secret: Buffer.from(process.env.JWT_REFRESH_SECRET),
     });
   }
 
@@ -74,21 +74,19 @@ export class AdminAuthService {
     token: string,
   ): Promise<boolean> {
     return await argon2.verify(digest, token, {
-      secret: Buffer.from(process.env.JWT_ADMIN_REFRESH_SECRET),
+      secret: Buffer.from(process.env.JWT_REFRESH_SECRET),
     });
   }
 
-  async login(loginAdminInput: LoginAdminDto): Promise<AdminLoginResponse> {
+  async login(loginDto: LoginDto): Promise<AuthLoginResponse> {
     try {
-      const user = await this.usersService.findByUsername(
-        loginAdminInput.username,
-      );
+      const user = await this.usersService.findByUsername(loginDto.username);
       if (!user) {
         this.logger.verbose('user is not found');
         throw new UnauthorizedException(`invalid username/password`);
       }
 
-      if (!(await passwordVerify(user.password, loginAdminInput.password))) {
+      if (!(await passwordVerify(user.password, loginDto.password))) {
         this.logger.verbose('failed password verification');
         throw new UnauthorizedException(`invalid username/password`);
       }

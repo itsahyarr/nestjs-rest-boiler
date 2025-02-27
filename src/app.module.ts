@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import dbConfig from './core/config/database';
-import { AdminAuthModule } from './modules/admin-auth';
+import { AuthModule } from './modules/auth';
 import { UsersModule } from './modules/users';
 
 const { combine, timestamp, colorize, align, printf } = winston.format;
@@ -33,7 +33,7 @@ const { combine, timestamp, colorize, align, printf } = winston.format;
       synchronize: true, // Disable in production
     }),
     UsersModule,
-    AdminAuthModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
